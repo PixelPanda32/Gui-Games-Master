@@ -1,0 +1,497 @@
+// Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.ImageObserver;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+
+public class BlackJack {
+   ArrayList<Card> deck;
+   Random random = new Random();
+   Card hiddenCard;
+   ArrayList<Card> dealerHand;
+   int dealerSum;
+   int dealerAceCount;
+   ArrayList<Card> playerHand;
+   int playerSum;
+   int playerAceCount;
+   int boardWidth = 800;
+   int boardHeight = 450;
+   int cardWidth = 110;
+   int cardHeight = 154;
+   int chipWidth;
+   int chipHeight;
+   int money = 725;
+   int bet;
+   JFrame frame = new JFrame("Black Jack");
+   JButton hitButton = new JButton("Hit");
+   JButton standButton = new JButton("Stand");
+   JButton restartButton = new JButton("Restart");
+   JButton saveButton = new JButton("Save");
+   JButton loadButton = new JButton("load");
+   JPanel gamePanel = new JPanel() {
+      {
+         Objects.requireNonNull(BlackJack.this);
+      }
+
+      public void paintComponent(Graphics var1) {
+         Image var2 = (new ImageIcon(this.getClass().getResource("./Cards/BG.png"))).getImage();
+         super.paintComponent(var1);
+
+         try {
+            var1.drawImage(var2, 0, 0, 800, 450, this);
+            Image var3 = (new ImageIcon(this.getClass().getResource("./Cards/green_backing.png"))).getImage();
+            if (!BlackJack.this.standButton.isEnabled()) {
+               var3 = (new ImageIcon(this.getClass().getResource(BlackJack.this.hiddenCard.getCardImagePath()))).getImage();
+            }
+
+            var1.drawImage(var3, 20, 20, BlackJack.this.cardWidth, BlackJack.this.cardHeight, (ImageObserver)null);
+
+            for(int var4 = 0; var4 < BlackJack.this.dealerHand.size(); ++var4) {
+               Card var5 = (Card)BlackJack.this.dealerHand.get(var4);
+               Image var6 = (new ImageIcon(this.getClass().getResource(var5.getCardImagePath()))).getImage();
+               var1.drawImage(var6, BlackJack.this.cardWidth + 25 + (BlackJack.this.cardWidth + 5) * var4, 20, BlackJack.this.cardWidth, BlackJack.this.cardHeight, (ImageObserver)null);
+            }
+
+            for(int var8 = 0; var8 < BlackJack.this.playerHand.size(); ++var8) {
+               Card var10 = (Card)BlackJack.this.playerHand.get(var8);
+               Image var18 = (new ImageIcon(this.getClass().getResource(var10.getCardImagePath()))).getImage();
+               var1.drawImage(var18, 20 + (BlackJack.this.cardWidth + 5) * var8, 220, BlackJack.this.cardWidth, BlackJack.this.cardHeight, (ImageObserver)null);
+            }
+
+            int[] var9 = new int[0];
+            if (BlackJack.this.money > 2000) {
+               int[] var15 = new int[]{1000, 500, 250, 100, 50, 25, 10, 5};
+            } else if (BlackJack.this.money < 1000) {
+               int[] var14 = new int[]{100, 50, 25, 10, 5};
+            } else if (BlackJack.this.money < 500) {
+               int[] var13 = new int[]{100, 50, 25, 10, 5};
+            } else if (BlackJack.this.money < 2000 && BlackJack.this.money > 1000) {
+               int[] var12 = new int[]{250, 100, 50, 25, 10, 5};
+            } else {
+               int[] var11 = new int[]{1000, 500, 250, 100, 50, 25, 10, 5};
+            }
+
+            BlackJack.this.drawChips(var1);
+            if (!BlackJack.this.standButton.isEnabled()) {
+               BlackJack.this.dealerSum = BlackJack.this.reduceDealerAce();
+               BlackJack.this.playerSum = BlackJack.this.reducePlayerAce();
+               String var16 = "";
+               if (BlackJack.this.playerSum > 21) {
+                  var16 = "Bust";
+               } else if (BlackJack.this.dealerSum > 21) {
+                  var16 = "Dealer Bust";
+               } else if (BlackJack.this.playerSum == BlackJack.this.dealerSum) {
+                  var16 = "Tie";
+                  BlackJack.this.money += BlackJack.this.bet * 2;
+               } else if (BlackJack.this.playerSum > BlackJack.this.dealerSum) {
+                  var16 = "You win";
+                  BlackJack.this.money += BlackJack.this.bet * 2;
+               } else {
+                  var16 = "You Lose";
+               }
+
+               var1.setFont(new Font("Arial", 0, 30));
+               var1.setColor(new Color(23, 22, 22));
+               var1.drawString(var16, 75, 207);
+               BlackJack.this.restartButton.setVisible(true);
+            }
+         } catch (Exception var7) {
+            var7.printStackTrace();
+         }
+
+      }
+   };
+   JPanel buttonPanel = new JPanel();
+   int chipSize = 55;
+   int maxStackHeight = 10;
+
+   BlackJack() {
+      System.out.println(this.money);
+      this.Deck();
+      this.StartGame();
+      this.frame.setSize(this.boardWidth, this.boardHeight);
+      this.frame.setLocationRelativeTo((Component)null);
+      this.frame.setResizable(true);
+      this.frame.setDefaultCloseOperation(3);
+      this.frame.setVisible(false);
+      this.gamePanel.setLayout(new BorderLayout());
+      this.frame.add(this.gamePanel);
+      this.hitButton.setFocusable(false);
+      this.standButton.setFocusable(false);
+      this.restartButton.setFocusable(false);
+      this.restartButton.setVisible(false);
+      this.saveButton.setFocusable(false);
+      this.loadButton.setFocusable(false);
+      this.hitButton.setFont(new Font("Monospaced", 0, 15));
+      this.standButton.setFont(new Font("Monospaced", 0, 15));
+      this.restartButton.setFont(new Font("Monospaced", 0, 15));
+      this.saveButton.setFont(new Font("Monospaced", 0, 15));
+      this.loadButton.setFont(new Font("Monospaced", 0, 15));
+      this.hitButton.setBackground(new Color(23, 22, 22));
+      this.hitButton.setBorderPainted(false);
+      this.standButton.setBackground(new Color(23, 22, 22));
+      this.standButton.setBorderPainted(false);
+      this.restartButton.setBackground(new Color(22, 22, 22));
+      this.restartButton.setBorderPainted(false);
+      this.saveButton.setBackground(new Color(22, 22, 22));
+      this.saveButton.setBorderPainted(false);
+      this.loadButton.setBackground(new Color(22, 22, 22));
+      this.loadButton.setBorderPainted(false);
+      this.saveButton.setForeground(new Color(255, 255, 255));
+      this.restartButton.setForeground(new Color(255, 255, 255));
+      this.standButton.setForeground(new Color(255, 255, 255));
+      this.hitButton.setForeground(new Color(255, 255, 255));
+      this.loadButton.setForeground(new Color(255, 255, 255));
+      this.buttonPanel.add(this.hitButton);
+      this.buttonPanel.add(this.standButton);
+      this.buttonPanel.add(this.restartButton);
+      this.buttonPanel.add(this.saveButton);
+      this.buttonPanel.add(this.loadButton);
+      this.buttonPanel.setOpaque(false);
+      this.buttonPanel.setBackground(new Color(122, 9, 9, 0));
+      this.gamePanel.add(this.buttonPanel, "South");
+      this.saveButton.addActionListener(new ActionListener() {
+         {
+            Objects.requireNonNull(BlackJack.this);
+         }
+
+         public void actionPerformed(ActionEvent var1) {
+            BlackJack.this.save();
+            System.out.println("saved");
+         }
+      });
+      this.hitButton.addActionListener(new ActionListener() {
+         {
+            Objects.requireNonNull(BlackJack.this);
+         }
+
+         public void actionPerformed(ActionEvent var1) {
+            Card var2 = (Card)BlackJack.this.deck.remove(BlackJack.this.deck.size() - 1);
+            BlackJack var10000 = BlackJack.this;
+            var10000.playerSum += var2.getValue();
+            var10000 = BlackJack.this;
+            var10000.playerAceCount += var2.isAce() ? 1 : 0;
+            BlackJack.this.playerHand.add(var2);
+            if (BlackJack.this.reducePlayerAce() > 21) {
+               BlackJack.this.hitButton.setEnabled(false);
+               BlackJack.this.standButton.setEnabled(false);
+            }
+
+            BlackJack.this.gamePanel.repaint();
+         }
+      });
+      this.standButton.addActionListener(new ActionListener() {
+         {
+            Objects.requireNonNull(BlackJack.this);
+         }
+
+         public void actionPerformed(ActionEvent var1) {
+            BlackJack.this.hitButton.setEnabled(false);
+            BlackJack.this.standButton.setEnabled(false);
+
+            while(BlackJack.this.dealerSum < 17) {
+               Card var2 = (Card)BlackJack.this.deck.remove(BlackJack.this.deck.size() - 1);
+               BlackJack var10000 = BlackJack.this;
+               var10000.dealerSum += var2.getValue();
+               var10000 = BlackJack.this;
+               var10000.dealerAceCount += var2.isAce() ? 1 : 0;
+               BlackJack.this.dealerHand.add(var2);
+            }
+
+            BlackJack.this.gamePanel.repaint();
+         }
+      });
+      this.restartButton.addActionListener(new ActionListener() {
+         {
+            Objects.requireNonNull(BlackJack.this);
+         }
+
+         public void actionPerformed(ActionEvent var1) {
+            BlackJack.this.StartGame();
+            BlackJack.this.hitButton.setEnabled(true);
+            BlackJack.this.standButton.setEnabled(true);
+            BlackJack.this.restartButton.setVisible(false);
+            if (BlackJack.this.deck.size() <= 5) {
+               BlackJack.this.Deck();
+               System.out.println("New deck");
+            }
+
+            BlackJack.this.gamePanel.repaint();
+         }
+      });
+      this.loadButton.addActionListener(new ActionListener() {
+         {
+            Objects.requireNonNull(BlackJack.this);
+         }
+
+         public void actionPerformed(ActionEvent var1) {
+            BlackJack.this.load();
+            System.out.println("loaded");
+            System.out.println(BlackJack.this.money);
+         }
+      });
+      this.gamePanel.getInputMap(2).put(KeyStroke.getKeyStroke('h'), "hitAction");
+      this.gamePanel.getActionMap().put("hitAction", new AbstractAction() {
+         {
+            Objects.requireNonNull(BlackJack.this);
+         }
+
+         public void actionPerformed(ActionEvent var1) {
+            if (BlackJack.this.hitButton.isEnabled()) {
+               BlackJack.this.hitButton.doClick();
+            }
+
+         }
+      });
+      this.gamePanel.getInputMap(2).put(KeyStroke.getKeyStroke('s'), "standAction");
+      this.gamePanel.getActionMap().put("standAction", new AbstractAction() {
+         {
+            Objects.requireNonNull(BlackJack.this);
+         }
+
+         public void actionPerformed(ActionEvent var1) {
+            if (BlackJack.this.standButton.isEnabled()) {
+               BlackJack.this.standButton.doClick();
+            }
+
+         }
+      });
+      this.gamePanel.repaint();
+   }
+
+   public void Deck() {
+      this.buildDeck();
+      this.shuffleDeck();
+   }
+
+   public void StartGame() {
+      this.dealerHand = new ArrayList();
+      this.dealerSum = 0;
+      this.dealerAceCount = 0;
+      this.hiddenCard = (Card)this.deck.remove(this.deck.size() - 1);
+      this.dealerSum += this.hiddenCard.getValue();
+      this.dealerAceCount += this.hiddenCard.isAce() ? 1 : 0;
+      Card var1 = (Card)this.deck.remove(this.deck.size() - 1);
+      this.dealerSum += var1.getValue();
+      this.dealerAceCount += var1.isAce() ? 1 : 0;
+      this.dealerHand.add(var1);
+      this.playerHand = new ArrayList();
+      this.playerSum = 0;
+      this.playerAceCount = 0;
+
+      for(int var2 = 0; var2 < 2; ++var2) {
+         var1 = (Card)this.deck.remove(this.deck.size() - 1);
+         this.playerSum += var1.getValue();
+         this.playerAceCount += var1.isAce() ? 1 : 0;
+         this.playerHand.add(var1);
+      }
+
+   }
+
+   public void drawChips(Graphics var1) {
+      int var2 = this.money;
+      int[] var3 = new int[]{1000, 500, 250, 100, 50, 25, 10, 5};
+      int var4 = this.boardWidth - 80;
+      byte var5 = 60;
+      byte var6 = 65;
+      byte var7 = 9;
+      int var8 = 0;
+
+      for(int var9 = 0; var9 < var3.length; ++var9) {
+         int var10 = var3[var9];
+         if (var2 >= var10) {
+            int var11 = var2 / var10;
+            var2 %= var10;
+
+            try {
+               Image var12 = (new ImageIcon(this.getClass().getResource("./Chips/" + var10 + ".png"))).getImage();
+               int var13 = var4 - var8 * var6;
+
+               for(int var14 = 0; var14 < var11; ++var14) {
+                  int var15 = var5 - var14 * var7;
+                  var1.drawImage(var12, var13, var15, 55, 55, (ImageObserver)null);
+               }
+
+               ++var8;
+            } catch (Exception var16) {
+               var16.printStackTrace();
+            }
+         }
+      }
+
+   }
+
+   public void buildDeck() {
+      this.deck = new ArrayList();
+      String[] var1 = new String[]{"A", "2", "3", "4", "5", "6", "7", "8", "9", "J", "K", "Q"};
+      String[] var2 = new String[]{"C", "S", "D", "H"};
+
+      for(int var3 = 0; var3 < var2.length; ++var3) {
+         for(int var4 = 0; var4 < var1.length; ++var4) {
+            Card var5 = new Card(var1[var4], var2[var3]);
+            this.deck.add(var5);
+         }
+      }
+
+   }
+
+   public void shuffleDeck() {
+      for(int var1 = 0; var1 < this.deck.size(); ++var1) {
+         int var2 = this.random.nextInt(this.deck.size());
+         Card var3 = (Card)this.deck.get(var1);
+         Card var4 = (Card)this.deck.get(var2);
+         this.deck.set(var1, var4);
+         this.deck.set(var2, var3);
+      }
+
+   }
+
+   public int reducePlayerAce() {
+      while(this.playerSum > 21 && this.playerAceCount > 0) {
+         this.playerSum -= 10;
+         --this.playerAceCount;
+      }
+
+      return this.playerSum;
+   }
+
+   public int reduceDealerAce() {
+      while(this.dealerSum > 21 && this.dealerAceCount > 0) {
+         this.dealerSum -= 10;
+         --this.dealerAceCount;
+      }
+
+      return this.dealerSum;
+   }
+
+   public void save() {
+      File var1 = new File("saveData.txt");
+
+      try {
+         FileWriter var2 = new FileWriter(var1);
+         var2.write(this.playerSum + "\n");
+         var2.write(this.playerAceCount + "\n");
+         var2.write(String.valueOf(this.playerHand) + "\n");
+         var2.write(this.dealerSum + "\n");
+         var2.write(String.valueOf(this.dealerHand) + "\n");
+         var2.write(String.valueOf(this.hiddenCard) + "\n");
+         var2.write(this.dealerAceCount + "\n");
+         var2.write(String.valueOf(this.deck) + "\n");
+         var2.write(this.money + "\n");
+         var2.flush();
+         var2.close();
+      } catch (IOException var3) {
+         System.out.println("Error: could not write");
+      }
+
+   }
+
+   public void load() {
+      try {
+         List var1 = Files.readAllLines(Paths.get("saveData.txt"));
+         this.playerSum = Integer.parseInt((String)var1.get(0));
+         this.playerAceCount = Integer.parseInt((String)var1.get(1));
+         this.playerHand = this.parseHand((String)var1.get(2));
+         this.dealerSum = Integer.parseInt((String)var1.get(3));
+         this.dealerHand = this.parseHand((String)var1.get(4));
+         this.hiddenCard = this.parseSingleCard((String)var1.get(5));
+         this.dealerAceCount = Integer.parseInt((String)var1.get(6));
+         this.deck = this.parseHand((String)var1.get(7));
+         this.money = Integer.parseInt((String)var1.get(8));
+         this.gamePanel.repaint();
+      } catch (IndexOutOfBoundsException | IOException var2) {
+         System.out.println("Error: could not load correctly.");
+      }
+
+   }
+
+   private ArrayList<Card> parseHand(String var1) {
+      ArrayList var2 = new ArrayList();
+      String var3 = var1.replace("[", "").replace("]", "").trim();
+      if (var3.isEmpty()) {
+         return var2;
+      } else {
+         String[] var4 = var3.split(", ");
+
+         for(String var8 : var4) {
+            var2.add(this.parseSingleCard(var8));
+         }
+
+         return var2;
+      }
+   }
+
+   private Card parseSingleCard(String var1) {
+      String[] var2 = var1.split("-");
+      return new Card(var2[0], var2[1]);
+   }
+
+   public static void main(String[] var0) {
+      new BlackJack();
+   }
+
+   private class Card {
+      String Value;
+      String Type;
+
+      Card(String var2, String var3) {
+         Objects.requireNonNull(BlackJack.this);
+         super();
+         this.Value = var2;
+         this.Type = var3;
+      }
+
+      public String toString() {
+         return this.Value + "-" + this.Type;
+      }
+
+      public int getValue() {
+         if ("AJQK".contains(this.Value)) {
+            return this.Value.equals("A") ? 11 : 10;
+         } else {
+            return Integer.parseInt(this.Value);
+         }
+      }
+
+      public boolean isAce() {
+         return this.Value.equals("A");
+      }
+
+      public String getCardImagePath() {
+         return "./Cards/" + this.toString() + ".png";
+      }
+   }
+
+   private class Chip {
+      static int chipnum;
+
+      private Chip() {
+         Objects.requireNonNull(BlackJack.this);
+         super();
+      }
+
+      public static String getChipImagePath() {
+         return "./Chips/" + chipnum + ".png";
+      }
+   }
+}
