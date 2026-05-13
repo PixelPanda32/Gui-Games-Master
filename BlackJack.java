@@ -427,24 +427,24 @@ public class BlackJack {
         }
         return dealerSum;
     }
-public void save(){
-File myFile = new File("saveData.txt");
-try{
-     FileWriter myWriter = new FileWriter(myFile);
-    myWriter.write(playerSum+"\n");
-    myWriter.write(playerAceCount+"\n");
-    myWriter.write(playerHand+"\n");
-    myWriter.write(dealerSum+"\n");
-    myWriter.write(dealerHand+"\n");
-    myWriter.write(hiddenCard+"\n");
-    myWriter.write(dealerAceCount+"\n");
-    myWriter.write(deck+"\n");
-    myWriter.write(money+"\n");
-    myWriter.flush();
-    myWriter.close();
-}catch(IOException e){
-System.out.println("Error: could not write");
-}
+    public void save(){
+    File myFile = new File("saveData.txt");
+    try{
+        FileWriter myWriter = new FileWriter(myFile);
+        myWriter.write(playerSum+"\n");
+        myWriter.write(playerAceCount+"\n");
+        myWriter.write(playerHand+"\n");
+        myWriter.write(dealerSum+"\n");
+        myWriter.write(dealerHand+"\n");
+        myWriter.write(hiddenCard+"\n");
+        myWriter.write(dealerAceCount+"\n");
+        myWriter.write(deck+"\n");
+        myWriter.write(money+"\n");
+        myWriter.flush();
+        myWriter.close();
+    }catch(IOException e){
+    System.out.println("Error: could not write");
+    }
 
 
 }
