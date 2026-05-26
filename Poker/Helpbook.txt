@@ -1,0 +1,18 @@
+-------------------- How to play Poker --------------------
+ You get a Hand of 5 cards which are equal to a score.
+ With the the 5 cards you can get 11 different Tricks.
+ The Tricks are ranked from 1 to 11 the 11nth hand being the worst and the 1st bieng the best.
+ If you get a bad hand you can discard up to 4 of your cards twice to try get a bettter hand.
+ To win you Need to get a better tricks in you hand then the dealers. Normally is played like a game of Bluff
+-------------------- Tricks -------------------------------- 
+1. Five of a kind - 4 of the same kind of cards and one joker. Example - Ace of Spades, Ace of Clubs, Ace of Hearts, Ace of Diamonds, Ace of Spades, Joker.
+2. Royal Flush - Decending in order from Ace, King, Queen, Jack, Ten all have to be the Same Suit. Has to have these cards.
+3. Straight Flush - Decending with any sequence but all have to be the same suit.
+4. Four of a kind - like five of a kind but without the joker.
+5. Full House - Three of a kind and two of a kind Make a Full House.
+6. Flush - All cards are the same Suit.
+7. Straight - Decending sequence where cards are not the same suit.
+8. Three of a kind - Pretty self explanitory Three of the same kind of a card .
+9. Two Pair - Two Sets of Two of a kind.
+10. Two of a kind - Two of the Same cards.
+11. High Card - just the highest card in your hand.
