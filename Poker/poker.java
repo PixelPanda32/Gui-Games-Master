@@ -54,14 +54,14 @@ public class poker{
         }
 
         public String getCardImagePath() {
-            return "Gui-Game-Master/Cards/" + toString() + ".png";
+            return "Cards/" + toString() + ".png";
         }
     }
     private class Chip{
-       static int chipnum;
+      static int chipnum;
       static public String getChipImagePath(){
         
-        return "Gui-Game-Master/Chips/" + chipnum + ".png";
+        return "./Chips/" + chipnum + ".png";
       }
 
 
@@ -103,7 +103,7 @@ public class poker{
     JPanel gamePanel = new JPanel() {
         @Override
         public void paintComponent(Graphics g) {
-            Image backgroundImage = new ImageIcon(getClass().getResource("Gui-Game-Master/Cards/BG.png")).getImage();
+            Image backgroundImage = new ImageIcon(getClass().getResource("./Cards/BG.png")).getImage();
             
             super.paintComponent(g);
         
@@ -112,7 +112,7 @@ public class poker{
                 g.drawImage(backgroundImage, 0, 0, 800, 450, this);
                 
                 // draw hidden card
-                Image hiddenCardImg = new ImageIcon(getClass().getResource("Gui-Game-Master/Cards/green_backing.png")).getImage();
+                Image hiddenCardImg = new ImageIcon(getClass().getResource("./Cards/green_backing.png")).getImage();
                 if (!standButton.isEnabled()) {
                     hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getCardImagePath())).getImage();
                 }
