@@ -40,13 +40,11 @@ public class poker{
         }
 
         public int getValue() {
-            if ("AJQK".contains(Value)) {
-                if (Value.equals("A")) {
-                    return 11;
-                }
-                return 10;
-            }
-            return Integer.parseInt(Value);
+          if(Value.equal("A")) returns 14;
+          if(Value.equal("A")) returns 13;
+          if(Value.equal("A")) returns 12;
+          if(Value.equal("A")) returns 11;
+           return Integer.parseInt(Value);
         }
 
         public boolean isAce() {
