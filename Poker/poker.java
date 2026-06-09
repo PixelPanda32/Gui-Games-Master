@@ -47,54 +47,50 @@ public class poker{
            return Integer.parseInt(Value);
         }
 
-        public boolean isAce() {
-            return Value.equals("A");
-        }
+       
 
         public String getCardImagePath() {
             return "Cards/" + toString() + ".png";
         }
+        @Override 
+        public int compareTo(Card o){
+            return Integer.compare(this.getValue(), o.getValue());
+        }
     }
-    private class Chip{
+    /*private class Chip{
       static int chipnum;
       static public String getChipImagePath(){
         
         return "./Chips/" + chipnum + ".png";
-      }
+      }*/
 
 
     }
     ArrayList<Card> deck;
     Random random = new Random();
-
-    // dealer
-    Card hiddenCard;
+    
+    // Hands
     ArrayList<Card> dealerHand;
-    int dealerSum;
-
-    // player
     ArrayList<Card> playerHand;
-    int playerSum;
+    boolean[] playerSelected = new boolean[5]; // Tracks cards marked for DISCARD
+    //draw with drawing up to 5 times
+    int drawsRemaining = 5; 
+    boolean showdown = false;
+    String resultMessage = "Select cards to DISCARD. Draws remaining: 5";
 
 
-    // Window
+    // Window and Card heights
     int boardWidth = 800;
-    int boardHeight = 450;
-
-    // Cards
+    int boardHeight = 500;
     int cardWidth = 110;
     int cardHeight = 154;
-    
-    //Chips 
-    int chipWidth;
-    int chipHeight;
+
  
 
     JFrame frame = new JFrame("Poker");
-
-    JButton hitButton = new JButton("Hit");
-    JButton standButton = new JButton("Stand");
-    JButton restartButton = new JButton("restart");
+    JButton discardButton = new JButton("Discard");
+    JButton playButton = new JButton("Play");
+    JButton restartButton = new JButton("Restart");
     JButton saveButton = new JButton("Save"); 
     JButton loadButton = new JButton("load");
 
@@ -108,40 +104,35 @@ public class poker{
 
             try {   
                 g.drawImage(backgroundImage, 0, 0, 800, 450, this);
-                
-                // draw hidden card
-                Image hiddenCardImg = new ImageIcon(getClass().getResource("./Cards/green_backing.png")).getImage();
-                if (!standButton.isEnabled()) {
-                    hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getCardImagePath())).getImage();
-                }
-                g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
 
                 // draw dealer hand
-                for (int i = 0; i < dealerHand.size(); i++) {
-                    System.out.println(dealerHand.size());
+                 for (int i = 0; i < dealerHand.size(); i++) {
                     Card card = dealerHand.get(i);
-                    Image cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
-                    g.drawImage(cardImg, cardWidth + 25 + (cardWidth + 5) * i, 20, cardWidth, cardHeight, null);
+                    Image cardImg;
+                    /*if (!showdown) {
+                        cardImg = new ImageIcon(getClass().getResource("Cards/green_backing.png")).getImage();
+                    } else {
+                        cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
+                    }*/
+                    g.drawImage(cardImg, 20 + (cardWidth + 5) * i, 20, cardWidth, cardHeight, null);
                 }
-
                 // draw player hand
-                for (int i = 0; i < playerHand.size(); i++) {
+                 for (int i = 0; i < playerHand.size(); i++) {
                     Card card = playerHand.get(i);
                     Image cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
-                    g.drawImage(cardImg, 20 + (cardWidth + 5) * i, 220, cardWidth, cardHeight, null);
-              
-                
-               
-                    //Win conditions
-
-               
-                    g.setFont(new Font("Arial", Font.PLAIN, 30));
-                    g.setColor(new Color(23, 22, 22));
-
-
-                    restartButton.setVisible(true);
+                    
+                    int yOffset = playerSelected[i] ? 200 : 220;
+                    g.drawImage(cardImg, 20 + (cardWidth + 5) * i, yOffset, cardWidth, cardHeight, null);
+                    
+                    if (playerSelected[i] && drawsRemaining > 0 && !showdown) {
+                        g.setFont(new Font("Arial", Font.BOLD, 12));
+                        g.setColor(Color.RED);
+                        g.drawString("DISCARD", 45 + (cardWidth + 5) * i, 195);
+                    }
                 }
-
+                 g.setFont(new Font("Arial", Font.BOLD, 18));
+                g.setColor(Color.WHITE);
+                g.drawString(resultMessage, 20, 410);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -150,96 +141,84 @@ public class poker{
 
     JPanel buttonPanel = new JPanel();
 
-    poker() {
+    public poker() {
 
-        Deck();
-        StartGame();
+        buildDeck();
+        shuffleDeck(); 
+        startGame();
 
 
         frame.setSize(boardWidth, boardHeight);
-        ///frame.setBackground(new Color(122, 9, 9));
         frame.setLocationRelativeTo(null);
         frame.setResizable(false );
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+
 
         gamePanel.setLayout(new BorderLayout());
-        //gamePanel.setBackground(new Color(122, 9, 9));
         frame.add(gamePanel);
-
-        hitButton.setFocusable(false);
-        standButton.setFocusable(false);
-        restartButton.setFocusable(false);
-        restartButton.setVisible(false);
-        saveButton.setFocusable(false);
-        loadButton.setFocusable(false);
-
-        hitButton.setFont(new Font("Monospaced", Font.PLAIN, 15));
-        standButton.setFont(new Font("Monospaced", Font.PLAIN, 15));
-        restartButton.setFont(new Font("Monospaced", Font.PLAIN, 15));
-        saveButton.setFont(new Font("Monospaced", Font.PLAIN, 15));
-        loadButton.setFont(new Font("Monospaced", Font.PLAIN, 15));
-        
-        hitButton.setBackground(new Color(23, 22, 22));
-        hitButton.setBorderPainted(false);
-        standButton.setBackground(new Color(23, 22, 22));
-        standButton.setBorderPainted(false);
-        restartButton.setBackground(new Color(22, 22, 22));
-        restartButton.setBorderPainted(false);
-        saveButton.setBackground(new Color(22, 22, 22));
-        saveButton.setBorderPainted(false);
-        loadButton.setBackground(new Color(22, 22, 22));
-        loadButton.setBorderPainted(false);
-
-
-        saveButton.setForeground(new Color(255,255,255));
-        restartButton.setForeground(new Color(255,255,255));
-        standButton.setForeground(new Color(255,255,255));
-        hitButton.setForeground(new Color(255,255,255));
-        loadButton.setForeground(new Color(255,255,255));
-
-        buttonPanel.add(hitButton);
-        buttonPanel.add(standButton);
-        buttonPanel.add(restartButton);
-        buttonPanel.add(saveButton);
-        buttonPanel.add(loadButton);
-        buttonPanel.setOpaque(false);
+          JButton[] buttons = {drawButton, showdownButton, restartButton, saveButton, loadButton};
+            for (JButton btn : buttons) {
+                btn.setFocusable(false);
+                btn.setFont(new Font("Monospaced", Font.PLAIN, 14));
+                btn.setBackground(new Color(23, 22, 22));
+                btn.setForeground(Color.WHITE);
+                btn.setBorderPainted(false);
+                buttonPanel.add(btn);
+        }
+        Panel.setOpaque(false);
         buttonPanel.setBackground(new Color(122, 9, 9,0));
         
         gamePanel.add(buttonPanel, BorderLayout.SOUTH);
+        gamePanel.addMouseListener(new MouseAdapter()){
+            @Override
+            public void mousePressed(MouseEvent e){
+                if(drawsRemaining <= 0|| play ) return;
 
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                save();
-                System.out.println("saved");
-            }
-        });
-        hitButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Card card = deck.remove(deck.size() - 1);
-                playerHand.add(card);
-                gamePanel.repaint();
-            }
-        });
+                int mx = e.getX();
+                int my = e.getX();
 
-        standButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                hitButton.setEnabled(false);
-                standButton.setEnabled(false);
+                for (int i = 0; i< playerHand.size(); i++) {
+                    int cardX = 20 + (cardWidth + 5) * i;
+                    int cardY = playerSelected[i] ? 200 : 220
+                    if(mx >= cardX && mx <= cardX + cardWidth && my >= cardY && my <= cardY + cardHeight){
+                        playerSelected[i] = !playerSelected[i];
+                        gamePanel.repaint();
+                        break;
+                    }
 
-                while (dealerSum < 17) {
-                    Card card = deck.remove(deck.size() - 1);
-                    dealerSum += card.getValue();
-                    dealerHand.add(card);
                 }
+
+            }
+        }
+           drawButton.addctionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (drawsRemaining > 0) {
+                    discardCards();
+                    drawsRemaining--;
+
+                    if(drawsRemaining == 0){
+                        drawButton.setEnabled(false);
+                        resultMessage = "0 draws left, Play time."
+                    }else{
+                        resultMessage = "Cards redrawn. Draws remaing " + drawsRemaining;
+                    }
+                    gamePanel.repaint();
+                }
+            }
+        });
+        playButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                play = true;
+                drawButton.setEnabled(false);
+                playButton.setEnabled(false);
+                Winner();
                 gamePanel.repaint();
-                
             }
         });
 
         restartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                StartGame();
+                startGame();
                 hitButton.setEnabled(true);
                 standButton.setEnabled(true);
                 restartButton.setVisible(false);
@@ -255,66 +234,39 @@ public class poker{
             public void actionPerformed(ActionEvent e) {
                 load();
                 System.out.println("loaded");
-  
-
-
             }
         });
-
-        // Key Bindings
-        gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'), "hitAction");
-        gamePanel.getActionMap().put("hitAction", new AbstractAction() {
-            @Override
+        saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (hitButton.isEnabled()) {
-                    hitButton.doClick();
-                }
+                save();
+                System.out.println("saved");
             }
         });
-
-        gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('s'), "standAction");
-        gamePanel.getActionMap().put("standAction", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (standButton.isEnabled()) {
-                    standButton.doClick();
-                }
-            }
-        });
-
+        frame.setVisible(true);
         gamePanel.repaint();
     }
-    public void Deck(){
-        buildDeck();
-        shuffleDeck();
+ 
+    public void startGame() {
+        if (deck == null || deck.size() < 30) { // Keep deck full for multiple redraws
+            buildDeck();
+            shuffleDeck();
+        }
 
-    }
-    public void StartGame() {
-        
-
-        dealerHand = new ArrayList<Card>();
-        dealerSum = 0;
-       
-
-        hiddenCard = deck.remove(deck.size() - 1);
-        dealerSum += hiddenCard.getValue();
-      
-
-        Card card = deck.remove(deck.size() - 1);
-        dealerSum += card.getValue();
-        dealerHand.add(card);
-
-        playerHand = new ArrayList<Card>();
-        playerSum = 0;
-        
+        dealerHand = new ArrayList<>();
+        playerHand = new ArrayList<>();
+        playerSelected = new boolean[5]; 
+        drawsRemaining = 5;
+        play = false;
+        drawButton.setEnabled(true);
+        playButton.setEnabled(true);
+        resultMessage = "Select cards to DISCARD. Draws remaining: 5";
 
         
 
-        for (int i = 0; i < 2; i++) {
-            card = deck.remove(deck.size() - 1);
-            playerSum += card.getValue();
+        for (int i = 0; i < 5; i++) {
+            playerHand.add(deck.remove(deck.size() - 1));
+            dealerHand.add(deck.remove(deck.size() - 1));
 
-            playerHand.add(card);
         }
     }
 
@@ -324,10 +276,10 @@ public class poker{
         String[] values = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "J", "K", "Q"};
         String[] types = {"C", "S", "D", "H"};
 
-        for (int i = 0; i < types.length; i++) {
-            for (int j = 0; j < values.length; j++) {
-                Card card = new Card(values[j], types[i]);
-                deck.add(card);
+        
+        for (String type : types) {
+            for (String value : values) {
+                deck.add(new Card(value, type));
             }
         }
     }
@@ -340,6 +292,100 @@ public class poker{
             deck.set(i, randomCard);
             deck.set(j, currCard);
         }
+    }
+    public void discardCards(){
+         for (int i = 0; i < playerHand.size(); i++) {
+            if (playerSelected[i]) {
+                if (deck.isEmpty()) {
+                    buildDeck();
+                    shuffleDeck();
+                }
+                playerHand.set(i, deck.remove(deck.size() - 1));
+            }
+            playerSelected[i] = false; 
+        }
+
+    }
+    public void Winner(){
+        int playerValue = scoreHand(playerHand);
+        int dealerValue = scoreHand(dealerHand);
+
+        String playerHandName = getHandName(playerValue);
+        String dealerHandName = getHandName(dealerValue);
+
+        if (playerValue > dealerValue) {
+            resultMessage = "Your " + playerHandName + " beats Dealer's " + dealerHandName + ".";
+        } else if (dealerValue > playerValue) {
+            resultMessage = "Dealer Hand " + dealerHandName + " beats your " + playerHandName + ".";
+        } else {
+            resultMessage = "Tie, both players have " + playerHandName + ".";
+        }
+    }
+      private String getHandName(int score) {
+        int type = score / 1000000;
+        switch (type) {
+            case 8: return "Straight Flush";
+            case 7: return "Four of a Kind";
+            case 6: return "Full House";
+            case 5: return "Flush";
+            case 4: return "Straight";
+            case 3: return "Three of a Kind";
+            case 2: return "Two Pair";
+            case 1: return "One Pair";
+            default: return "High Card";
+        }
+    }
+    private int scoreHand(ArrayList<Card> hand) {
+        Collections.sort(hand);
+        
+        boolean isFlush = true;
+        for (int i = 1; i < 5; i++) {
+            if (!hand.get(i).Type.equals(hand.get(0).Type)) {
+                isFlush = false;
+                break;
+            }
+        }
+
+        boolean isStraight = true;
+        for (int i = 0; i < 4; i++) {
+            if (hand.get(i + 1).getValue() != hand.get(i).getValue() + 1) {
+                isStraight = false;
+                break;
+            }
+        }
+
+        HashMap<Integer, Integer> freq = new HashMap<>();
+        for (Card c : hand) {
+            freq.put(c.getValue(), freq.getOrDefault(c.getValue(), 0) + 1);
+        }
+
+        ArrayList<Integer> pairs = new ArrayList<>();
+        int trips = 0;
+        int quads = 0;
+
+        for (int val : freq.keySet()) {
+            int count = freq.get(val);
+            if (count == 2) pairs.add(val);
+            else if (count == 3) trips = val;
+            else if (count == 4) quads = val;
+        }
+        Collections.sort(pairs, Collections.reverseOrder());
+
+        int tieBreaker = 0;
+        for (int i = 4; i >= 0; i--) {
+            tieBreaker = tieBreaker * 15 + hand.get(i).getValue();
+        }
+
+        if (isStraight && isFlush) return 8 * 1000000 + hand.get(4).getValue();
+        if (quads > 0) return 7 * 1000000 + quads;
+        if (trips > 0 && !pairs.isEmpty()) return 6 * 1000000 + trips;
+        if (isFlush) return 5 * 1000000 + tieBreaker;
+        if (isStraight) return 4 * 1000000 + hand.get(4).getValue();
+        if (trips > 0) return 3 * 1000000 + trips;
+        if (pairs.size() == 2) return 2 * 1000000 + pairs.get(0) * 15 + pairs.get(1);
+        if (pairs.size() == 1) return 1 * 1000000 + pairs.get(0) * 15 + tieBreaker / 15;
+        
+        return 0 * 1000000 + tieBreaker;
     }
 
     public void save(){
@@ -357,6 +403,7 @@ public class poker{
     }catch(IOException e){
     System.out.println("Error: could not write");
     }
+   
 
 
 }
