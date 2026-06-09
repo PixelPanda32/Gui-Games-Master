@@ -179,7 +179,7 @@ public class poker{
 
                 for (int i = 0; i< playerHand.size(); i++) {
                     int cardX = 20 + (cardWidth + 5) * i;
-                    int cardY = playerSelected[i] ? 200 : 220
+                    int cardY = playerSelected[i] ? 200 : 220;
                     if(mx >= cardX && mx <= cardX + cardWidth && my >= cardY && my <= cardY + cardHeight){
                         playerSelected[i] = !playerSelected[i];
                         gamePanel.repaint();
@@ -198,7 +198,7 @@ public class poker{
 
                     if(drawsRemaining == 0){
                         drawButton.setEnabled(false);
-                        resultMessage = "0 draws left, Play time."
+                        resultMessage = "0 draws left, Play time.";
                     }else{
                         resultMessage = "Cards redrawn. Draws remaing " + drawsRemaining;
                     }
