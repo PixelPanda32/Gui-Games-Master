@@ -306,6 +306,7 @@ public class poker {
 
         String playerHandName = getHandName(playerValue);
         String dealerHandName = getHandName(dealerValue);
+        System.out.println(dealerValue, playerValue);
 
         if (playerValue > dealerValue) {
             resultMessage = "Your " + playerHandName + " beats Dealer's " + dealerHandName + ".";
