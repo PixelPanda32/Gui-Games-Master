@@ -9,6 +9,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Arrays;
 import java.util.Random;
 import javax.swing.*;
@@ -23,9 +25,9 @@ import javax.smartcardio.Card;
 
 import java.util.Scanner;
 
-public class poker{
+public class poker {
 
-    private class Card {
+    private class Card implements Comparable<Card>{
 
         String Value;
         String Type;
@@ -40,10 +42,10 @@ public class poker{
         }
 
         public int getValue() {
-          if(Value.equal("A")) returns 14;
-          if(Value.equal("A")) returns 13;
-          if(Value.equal("A")) returns 12;
-          if(Value.equal("A")) returns 11;
+          if(Value.equals("A"))return 14;
+          if(Value.equals("K"))return 13;
+          if(Value.equals("Q"))return 12;
+          if(Value.equals("J"))return 11;
            return Integer.parseInt(Value);
         }
 
@@ -65,7 +67,7 @@ public class poker{
       }*/
 
 
-    }
+    
     ArrayList<Card> deck;
     Random random = new Random();
     
@@ -75,7 +77,7 @@ public class poker{
     boolean[] playerSelected = new boolean[5]; // Tracks cards marked for DISCARD
     //draw with drawing up to 5 times
     int drawsRemaining = 5; 
-    boolean showdown = false;
+    boolean play = false;
     String resultMessage = "Select cards to DISCARD. Draws remaining: 5";
 
 
@@ -88,7 +90,7 @@ public class poker{
  
 
     JFrame frame = new JFrame("Poker");
-    JButton discardButton = new JButton("Discard");
+    JButton drawButton = new JButton("Discard");
     JButton playButton = new JButton("Play");
     JButton restartButton = new JButton("Restart");
     JButton saveButton = new JButton("Save"); 
@@ -109,6 +111,7 @@ public class poker{
                  for (int i = 0; i < dealerHand.size(); i++) {
                     Card card = dealerHand.get(i);
                     Image cardImg;
+                    cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
                     /*if (!showdown) {
                         cardImg = new ImageIcon(getClass().getResource("Cards/green_backing.png")).getImage();
                     } else {
@@ -124,7 +127,7 @@ public class poker{
                     int yOffset = playerSelected[i] ? 200 : 220;
                     g.drawImage(cardImg, 20 + (cardWidth + 5) * i, yOffset, cardWidth, cardHeight, null);
                     
-                    if (playerSelected[i] && drawsRemaining > 0 && !showdown) {
+                    if (playerSelected[i] && drawsRemaining > 0 && !play) {
                         g.setFont(new Font("Arial", Font.BOLD, 12));
                         g.setColor(Color.RED);
                         g.drawString("DISCARD", 45 + (cardWidth + 5) * i, 195);
@@ -142,7 +145,6 @@ public class poker{
     JPanel buttonPanel = new JPanel();
 
     public poker() {
-
         buildDeck();
         shuffleDeck(); 
         startGame();
@@ -156,7 +158,7 @@ public class poker{
 
         gamePanel.setLayout(new BorderLayout());
         frame.add(gamePanel);
-          JButton[] buttons = {drawButton, showdownButton, restartButton, saveButton, loadButton};
+          JButton[] buttons = {drawButton, playButton, restartButton, saveButton, loadButton};
             for (JButton btn : buttons) {
                 btn.setFocusable(false);
                 btn.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -165,17 +167,16 @@ public class poker{
                 btn.setBorderPainted(false);
                 buttonPanel.add(btn);
         }
-        Panel.setOpaque(false);
-        buttonPanel.setBackground(new Color(122, 9, 9,0));
+        buttonPanel.setOpaque(true);
         
         gamePanel.add(buttonPanel, BorderLayout.SOUTH);
-        gamePanel.addMouseListener(new MouseAdapter()){
+        gamePanel.addMouseListener(new MouseAdapter(){
             @Override
-            public void mousePressed(MouseEvent e){
+            public void mousePressed(MouseEvent e) {
                 if(drawsRemaining <= 0|| play ) return;
 
                 int mx = e.getX();
-                int my = e.getX();
+                int my = e.getY();
 
                 for (int i = 0; i< playerHand.size(); i++) {
                     int cardX = 20 + (cardWidth + 5) * i;
@@ -189,8 +190,8 @@ public class poker{
                 }
 
             }
-        }
-           drawButton.addctionListener(new ActionListener() {
+        });
+           drawButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (drawsRemaining > 0) {
                     discardCards();
@@ -219,13 +220,6 @@ public class poker{
         restartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 startGame();
-                hitButton.setEnabled(true);
-                standButton.setEnabled(true);
-                restartButton.setVisible(false);
-                if(deck.size() <= 5){
-                    Deck();
-                    System.out.println("New deck");
-                }
                 gamePanel.repaint();
 
             }
@@ -337,6 +331,7 @@ public class poker{
     }
     private int scoreHand(ArrayList<Card> hand) {
         Collections.sort(hand);
+
         
         boolean isFlush = true;
         for (int i = 1; i < 5; i++) {
@@ -389,17 +384,12 @@ public class poker{
     }
 
     public void save(){
-    File myFile = new File("saveData.txt");
-    try{
-        FileWriter myWriter = new FileWriter(myFile);
-        myWriter.write(playerSum+"\n");
-        myWriter.write(playerHand+"\n");
-        myWriter.write(dealerSum+"\n");
-        myWriter.write(dealerHand+"\n");
-        myWriter.write(hiddenCard+"\n");
-        myWriter.write(deck+"\n");
-        myWriter.flush();
-        myWriter.close();
+    File myFile = new File("Poker_save_Data.txt");
+    try{ FileWriter myWriter = new FileWriter(myFile);
+        myWriter.write(playerHand.toString() +"\n");
+        myWriter.write(drawsRemaining+ "\n");
+        myWriter.write(play + "\n");
+        myWriter.write(deck.toString()+"\n");
     }catch(IOException e){
     System.out.println("Error: could not write");
     }
@@ -408,40 +398,42 @@ public class poker{
 
 }
 public void load() {
-    try {
-        java.util.List<String> lines = Files.readAllLines(Paths.get("saveData.txt"));
-        this.playerSum = Integer.parseInt(lines.get(0));
-        
-        this.playerHand = parseHand(lines.get(2));
-        this.dealerSum = Integer.parseInt(lines.get(3));
-        this.dealerHand = parseHand(lines.get(4));
-        this.hiddenCard = parseSingleCard(lines.get(5));
-        this.deck = parseHand(lines.get(7));
+     try {
+            java.util.List<String> lines = Files.readAllLines(Paths.get("poker_save_data.txt"));
+            this.playerHand = parseHand(lines.get(0));
+            this.dealerHand = parseHand(lines.get(1));
+            this.drawsRemaining = Integer.parseInt(lines.get(2));
+            this.play = Boolean.parseBoolean(lines.get(3));
+            this.deck = parseHand(lines.get(4));
 
-        gamePanel.repaint();
-    } catch (IOException | IndexOutOfBoundsException e) {
-        System.out.println("Error: could not load correctly.");
-        
-    }
+            drawButton.setEnabled(drawsRemaining > 0 && !play);
+            playButton.setEnabled(!play);
+            
+            if (play) {
+                Winner();
+            } else {
+                resultMessage = "Game Loaded. Draws remaining: " + drawsRemaining;
+            }
+            gamePanel.repaint();
+        } catch (IOException | IndexOutOfBoundsException e) {
+            resultMessage = "Error: Could not load save file.";
+            gamePanel.repaint();
+        }
 }
 
 // method to turn "[A-S, 5-D]" back into ArrayList<Card>
-private ArrayList<Card> parseHand(String line) {
-    ArrayList<Card> hand = new ArrayList<>();
-    String clean = line.replace("[", "").replace("]", "").trim();
-    if (clean.isEmpty()) return hand;
+    private ArrayList<Card> parseHand(String line) {
+        ArrayList<Card> hand = new ArrayList<>();
+        String clean = line.replace("[", "").replace("]", "").trim();
+        if (clean.isEmpty()) return hand;
 
-    String[] parts = clean.split(", ");
-    for (String s : parts) {
-        hand.add(parseSingleCard(s));
+        String[] parts = clean.split(", ");
+        for (String s : parts) {
+            String[] cardParts = s.split("-");
+            hand.add(new Card(cardParts[0], cardParts[1]));
+        }
+        return hand;
     }
-    return hand;
-}
-
-private Card parseSingleCard(String cardStr) {
-    String[] parts = cardStr.split("-");
-    return new Card(parts[0], parts[1]);
-}
 
     public static void main(String[] args) {
         new poker();
