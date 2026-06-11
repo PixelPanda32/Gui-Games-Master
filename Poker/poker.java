@@ -112,7 +112,7 @@ public class poker {
                     Card card = dealerHand.get(i);
                     Image cardImg;
                     cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
-                    /*if (!showdown) {
+                    /*if (!play) {
                         cardImg = new ImageIcon(getClass().getResource("Cards/green_backing.png")).getImage();
                     } else {
                         cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
@@ -301,41 +301,35 @@ public class poker {
 
     }
 public void determineWinner() {
+    int playerHandRank = getHandRank(playerHand);
+    int dealerHandRank = getHandRank(dealerHand);
 
-    int playerRank = getHandRank(playerHand);
-    int dealerRank = getHandRank(dealerHand);
+    String playerHandName = getHandName(playerHandRank);
+    String dealerHandName = getHandName(dealerHandRank);
 
-    String playerHandName = getHandName(playerRank);
-    String dealerHandName = getHandName(dealerRank);
 
-    
-    if (playerRank > dealerRank) {
-        resultMessage = "Your " + playerHandName + " beats Dealer's " + dealerHandName + ".";
+    if (playerHandRank > dealerHandRank) {
+        resultMessage = "Your " + playerHandName + " wins against dealer's " + dealerHandName + ".";
         return;
-    } 
-    if (dealerRank > playerRank) {
-        resultMessage = "Dealer's " + dealerHandName + " beats your " + playerHandName + ".";
+    } else if (dealerHandRank > playerHandRank) {
+        resultMessage = "Dealer's " + dealerHandName + " wins against Your " + playerHandName + ".";
         return;
     }
-
-  
-    Collections.sort(playerHand, Collections.reverseOrder());
-    Collections.sort(dealerHand, Collections.reverseOrder());
+    sortHandForTieBreaker(playerHand);
+    sortHandForTieBreaker(dealerHand);
 
     for (int i = 0; i < 5; i++) {
-        int pVal = playerHand.get(i).getValue();
-        int dVal = dealerHand.get(i).getValue();
+        int playerCardValue = playerHand.get(i).getValue();
+        int dealerCardValue = dealerHand.get(i).getValue();
 
-        if (pVal > dVal) {
-            resultMessage = "Your " + playerHandName + " wins against dealers" + dealerHandName + ".";
+        if (playerCardValue > dealerCardValue) {
+            resultMessage = "Your " + playerHandName + " wins against dealer's " + dealerHandName + ".";
             return;
-        } else if (dVal > pVal) {
-            resultMessage = "Dealer's " + dealerHandName + " wins against Your" + playerHandName + ".";
+        } else if (dealerCardValue > playerCardValue) {
+            resultMessage = "Dealer's " + dealerHandName + " wins against Your " + playerHandName + ".";
             return;
         }
     }
-
-  
     resultMessage = "Tie! Both players have the exact same " + playerHandName + ".";
 }
 
@@ -348,46 +342,83 @@ private String getHandName(int rank) {
         case 5: return "Straight";
         case 4: return "Three of a Kind";
         case 3: return "Two Pair";
-        case 2: return "One Pair";
+        case 2: return "Pair";
         default: return "High Card";
     }
 }
 
 private int getHandRank(ArrayList<Card> hand) {
-    Collections.sort(hand); // Sort ascending to easily check for straights
+    java.util.Collections.sort(hand); 
 
-    // Check Flush & Straight
     boolean isFlush = true;
     boolean isStraight = true;
     for (int i = 0; i < 4; i++) {
-        if (!hand.get(i).Type.equals(hand.get(i + 1).Type)) isFlush = false;
-        if (hand.get(i + 1).getValue() != hand.get(i).getValue() + 1) isStraight = false;
+        if (!hand.get(i).Type.equals(hand.get(i + 1).Type)) {
+            isFlush = false;
+        }
+        if (hand.get(i + 1).getValue() != hand.get(i).getValue() + 1) {
+            isStraight = false;
+        }
     }
 
-    // Count card frequencies
-    HashMap<Integer, Integer> freq = new HashMap<>();
-    for (Card c : hand) {
-        freq.put(c.getValue(), freq.getOrDefault(c.getValue(), 0) + 1);
+    java.util.HashMap<Integer, Integer> valueFrequencies = new java.util.HashMap<>();
+    for (Card card : hand) {
+        valueFrequencies.put(card.getValue(), valueFrequencies.getOrDefault(card.getValue(), 0) + 1);
     }
 
-    int pairs = 0, trips = 0, quads = 0;
-    for (int count : freq.values()) {
-        if (count == 4) quads++;
-        else if (count == 3) trips++;
-        else if (count == 2) pairs++;
+    int pairCount = 0;
+    int tripleCount = 0;
+    int quadCount = 0;
+
+    for (int count : valueFrequencies.values()) {
+        if (count == 4) quadCount++;
+        else if (count == 3) tripleCount++;
+        else if (count == 2) pairCount++;
     }
 
-    // Return a clean rank from 1 to 9
     if (isStraight && isFlush) return 9; 
-    if (quads == 1)            return 8; 
-    if (trips == 1 && pairs == 1) return 7; 
-    if (isFlush)               return 6; 
-    if (isStraight)            return 5; 
-    if (trips == 1)            return 4; 
-    if (pairs == 2)            return 3; 
-    if (pairs == 1)            return 2; 
+    if (quadCount == 1)        return 8; 
+    if (tripleCount == 1 && pairCount == 1) return 7; 
+    if (isFlush)                return 6; 
+    if (isStraight)             return 5; 
+    if (tripleCount == 1)       return 4; 
+    if (pairCount == 2)         return 3; 
+    if (pairCount == 1)         return 2; 
 
-    return 1; // High Card
+    return 1; 
+}
+
+private void sortHandForTieBreaker(ArrayList<Card> hand) {
+    java.util.HashMap<Integer, Integer> valueFrequencies = new java.util.HashMap<>();
+    for (Card card : hand) {
+        valueFrequencies.put(card.getValue(), valueFrequencies.getOrDefault(card.getValue(), 0) + 1);
+    }
+
+   
+    for (int i = 0; i < hand.size() - 1; i++) {
+        for (int j = 0; j < hand.size() - i - 1; j++) {
+            Card card1 = hand.get(j);
+            Card card2 = hand.get(j + 1);
+
+            int freq1 = valueFrequencies.get(card1.getValue());
+            int freq2 = valueFrequencies.get(card2.getValue());
+
+            boolean swapNeeded = false;
+
+
+            if (freq1 < freq2) {
+                swapNeeded = true;
+            } 
+            else if (freq1 == freq2 && card1.getValue() < card2.getValue()) {
+                swapNeeded = true;
+            }
+
+            if (swapNeeded) {
+                hand.set(j, card2);
+                hand.set(j + 1, card1);
+            }
+        }
+    }
 }
     public void save(){
     File myFile = new File("Poker_save_Data.txt");
