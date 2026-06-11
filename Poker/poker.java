@@ -76,7 +76,7 @@ public class poker {
     ArrayList<Card> playerHand;
     boolean[] playerSelected = new boolean[5]; // Tracks cards marked for DISCARD
     //draw with drawing up to 5 times
-    int drawsRemaining = 5; 
+    int drawsRemaining; 
     boolean play = false;
     String resultMessage = "Select cards to DISCARD. Draws remaining: 5";
 
@@ -117,7 +117,7 @@ public class poker {
                     } else {
                         cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
                     }*/
-                    g.drawImage(cardImg, 20 + (cardWidth + 5) * i, 20, cardWidth, cardHeight, null);
+                    g.drawImage(cardImg, 100 + (cardWidth + 8) * i, 20, cardWidth, cardHeight, null);
                 }
                 // draw player hand
                  for (int i = 0; i < playerHand.size(); i++) {
@@ -125,7 +125,7 @@ public class poker {
                     Image cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
                     
                     int yOffset = playerSelected[i] ? 200 : 220;
-                    g.drawImage(cardImg, 20 + (cardWidth + 5) * i, yOffset, cardWidth, cardHeight, null);
+                    g.drawImage(cardImg, 100 + (cardWidth + 8) * i, yOffset, cardWidth, cardHeight, null);
                     
                     if (playerSelected[i] && drawsRemaining > 0 && !play) {
                         g.setFont(new Font("Arial", Font.BOLD, 12));
@@ -167,7 +167,7 @@ public class poker {
                 btn.setBorderPainted(false);
                 buttonPanel.add(btn);
         }
-        buttonPanel.setOpaque(true);
+        buttonPanel.setOpaque(true);    
         
         gamePanel.add(buttonPanel, BorderLayout.SOUTH);
         gamePanel.addMouseListener(new MouseAdapter(){
@@ -179,7 +179,7 @@ public class poker {
                 int my = e.getY();
 
                 for (int i = 0; i< playerHand.size(); i++) {
-                    int cardX = 20 + (cardWidth + 5) * i;
+                    int cardX = 100 + (cardWidth + 5) * i;
                     int cardY = playerSelected[i] ? 200 : 220;
                     if(mx >= cardX && mx <= cardX + cardWidth && my >= cardY && my <= cardY + cardHeight){
                         playerSelected[i] = !playerSelected[i];
@@ -249,11 +249,11 @@ public class poker {
         dealerHand = new ArrayList<>();
         playerHand = new ArrayList<>();
         playerSelected = new boolean[5]; 
-        drawsRemaining = 5;
+        drawsRemaining = 1000;
         play = false;
         drawButton.setEnabled(true);
         playButton.setEnabled(true);
-        resultMessage = "Select cards to DISCARD. Draws remaining: 5";
+        resultMessage = "Select cards to DISCARD. Draws remaining: "+ drawsRemaining;
 
         
 
@@ -376,14 +376,14 @@ private int getHandRank(ArrayList<Card> hand) {
         else if (count == 2) pairCount++;
     }
 
-    if (isStraight && isFlush) return 9; 
-    if (quadCount == 1)        return 8; 
-    if (tripleCount == 1 && pairCount == 1) return 7; 
-    if (isFlush)                return 6; 
-    if (isStraight)             return 5; 
-    if (tripleCount == 1)       return 4; 
-    if (pairCount == 2)         return 3; 
-    if (pairCount == 1)         return 2; 
+    if (isStraight && isFlush) return 9; //Straight flush
+    if (quadCount == 1)        return 8;  //Four of a kind
+    if (tripleCount == 1 && pairCount == 1) return 7; //Flush
+    if (isFlush)                return 6;  //FLush
+    if (isStraight)             return 5;   //Straight
+    if (tripleCount == 1)       return 4;   //Three of a kind
+    if (pairCount == 2)         return 3;   //Two pair
+    if (pairCount == 1)         return 2;   //Pair
 
     return 1; 
 }
@@ -399,7 +399,6 @@ private void sortHandForTieBreaker(ArrayList<Card> hand) {
         for (int j = 0; j < hand.size() - i - 1; j++) {
             Card card1 = hand.get(j);
             Card card2 = hand.get(j + 1);
-
             int freq1 = valueFrequencies.get(card1.getValue());
             int freq2 = valueFrequencies.get(card2.getValue());
 
@@ -424,6 +423,7 @@ private void sortHandForTieBreaker(ArrayList<Card> hand) {
     File myFile = new File("Poker_save_Data.txt");
     try{ FileWriter myWriter = new FileWriter(myFile);
         myWriter.write(playerHand.toString() +"\n");
+        myWriter.write(dealerHand.toString() + "\n");
         myWriter.write(drawsRemaining+ "\n");
         myWriter.write(play + "\n");
         myWriter.write(deck.toString()+"\n");
