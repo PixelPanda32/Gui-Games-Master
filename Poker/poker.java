@@ -212,7 +212,7 @@ public class poker {
                 play = true;
                 drawButton.setEnabled(false);
                 playButton.setEnabled(false);
-                Winner();
+                determineWinner();
                 gamePanel.repaint();
             }
         });
@@ -300,90 +300,95 @@ public class poker {
         }
 
     }
-    public void Winner(){
-        int playerValue = scoreHand(playerHand);
-        int dealerValue = scoreHand(dealerHand);
+public void determineWinner() {
 
-        String playerHandName = getHandName(playerValue);
-        String dealerHandName = getHandName(dealerValue);
-        System.out.println(dealerValue, playerValue);
+    int playerRank = getHandRank(playerHand);
+    int dealerRank = getHandRank(dealerHand);
 
-        if (playerValue > dealerValue) {
-            resultMessage = "Your " + playerHandName + " beats Dealer's " + dealerHandName + ".";
-        } else if (dealerValue > playerValue) {
-            resultMessage = "Dealer Hand " + dealerHandName + " beats your " + playerHandName + ".";
-        } else {
-            resultMessage = "Tie, both players have " + playerHandName + ".";
-        }
-    }
-      private String getHandName(int score) {
-        int type = score / 1000000;
-        switch (type) {
-            case 8: return "Straight Flush";
-            case 7: return "Four of a Kind";
-            case 6: return "Full House";
-            case 5: return "Flush";
-            case 4: return "Straight";
-            case 3: return "Three of a Kind";
-            case 2: return "Two Pair";
-            case 1: return "One Pair";
-            default: return "High Card";
-        }
-    }
-    private int scoreHand(ArrayList<Card> hand) {
-        Collections.sort(hand);
+    String playerHandName = getHandName(playerRank);
+    String dealerHandName = getHandName(dealerRank);
 
-        
-        boolean isFlush = true;
-        for (int i = 1; i < 5; i++) {
-            if (!hand.get(i).Type.equals(hand.get(0).Type)) {
-                isFlush = false;
-                break;
-            }
-        }
-
-        boolean isStraight = true;
-        for (int i = 0; i < 4; i++) {
-            if (hand.get(i + 1).getValue() != hand.get(i).getValue() + 1) {
-                isStraight = false;
-                break;
-            }
-        }
-
-        HashMap<Integer, Integer> freq = new HashMap<>();
-        for (Card c : hand) {
-            freq.put(c.getValue(), freq.getOrDefault(c.getValue(), 0) + 1);
-        }
-
-        ArrayList<Integer> pairs = new ArrayList<>();
-        int trips = 0;
-        int quads = 0;
-
-        for (int val : freq.keySet()) {
-            int count = freq.get(val);
-            if (count == 2) pairs.add(val);
-            else if (count == 3) trips = val;
-            else if (count == 4) quads = val;
-        }
-        Collections.sort(pairs, Collections.reverseOrder());
-
-        int tieBreaker = 0;
-        for (int i = 4; i >= 0; i--) {
-            tieBreaker = tieBreaker * 15 + hand.get(i).getValue();
-        }
-
-        if (isStraight && isFlush) return 8 * 1000000 + hand.get(4).getValue();
-        if (quads > 0) return 7 * 1000000 + quads;
-        if (trips > 0 && !pairs.isEmpty()) return 6 * 1000000 + trips;
-        if (isFlush) return 5 * 1000000 + tieBreaker;
-        if (isStraight) return 4 * 1000000 + hand.get(4).getValue();
-        if (trips > 0) return 3 * 1000000 + trips;
-        if (pairs.size() == 2) return 2 * 1000000 + pairs.get(0) * 15 + pairs.get(1);
-        if (pairs.size() == 1) return 1 * 1000000 + pairs.get(0) * 15 + tieBreaker / 15;
-        
-        return 0 * 1000000 + tieBreaker;
+    
+    if (playerRank > dealerRank) {
+        resultMessage = "Your " + playerHandName + " beats Dealer's " + dealerHandName + ".";
+        return;
+    } 
+    if (dealerRank > playerRank) {
+        resultMessage = "Dealer's " + dealerHandName + " beats your " + playerHandName + ".";
+        return;
     }
 
+  
+    Collections.sort(playerHand, Collections.reverseOrder());
+    Collections.sort(dealerHand, Collections.reverseOrder());
+
+    for (int i = 0; i < 5; i++) {
+        int pVal = playerHand.get(i).getValue();
+        int dVal = dealerHand.get(i).getValue();
+
+        if (pVal > dVal) {
+            resultMessage = "Your " + playerHandName + " wins against dealers" + dealerHandName + ".";
+            return;
+        } else if (dVal > pVal) {
+            resultMessage = "Dealer's " + dealerHandName + " wins against Your" + playerHandName + ".";
+            return;
+        }
+    }
+
+  
+    resultMessage = "Tie! Both players have the exact same " + playerHandName + ".";
+}
+
+private String getHandName(int rank) {
+    switch (rank) {
+        case 9: return "Straight Flush";
+        case 8: return "Four of a Kind";
+        case 7: return "Full House";
+        case 6: return "Flush";
+        case 5: return "Straight";
+        case 4: return "Three of a Kind";
+        case 3: return "Two Pair";
+        case 2: return "One Pair";
+        default: return "High Card";
+    }
+}
+
+private int getHandRank(ArrayList<Card> hand) {
+    Collections.sort(hand); // Sort ascending to easily check for straights
+
+    // Check Flush & Straight
+    boolean isFlush = true;
+    boolean isStraight = true;
+    for (int i = 0; i < 4; i++) {
+        if (!hand.get(i).Type.equals(hand.get(i + 1).Type)) isFlush = false;
+        if (hand.get(i + 1).getValue() != hand.get(i).getValue() + 1) isStraight = false;
+    }
+
+    // Count card frequencies
+    HashMap<Integer, Integer> freq = new HashMap<>();
+    for (Card c : hand) {
+        freq.put(c.getValue(), freq.getOrDefault(c.getValue(), 0) + 1);
+    }
+
+    int pairs = 0, trips = 0, quads = 0;
+    for (int count : freq.values()) {
+        if (count == 4) quads++;
+        else if (count == 3) trips++;
+        else if (count == 2) pairs++;
+    }
+
+    // Return a clean rank from 1 to 9
+    if (isStraight && isFlush) return 9; 
+    if (quads == 1)            return 8; 
+    if (trips == 1 && pairs == 1) return 7; 
+    if (isFlush)               return 6; 
+    if (isStraight)            return 5; 
+    if (trips == 1)            return 4; 
+    if (pairs == 2)            return 3; 
+    if (pairs == 1)            return 2; 
+
+    return 1; // High Card
+}
     public void save(){
     File myFile = new File("Poker_save_Data.txt");
     try{ FileWriter myWriter = new FileWriter(myFile);
@@ -411,7 +416,7 @@ public void load() {
             playButton.setEnabled(!play);
             
             if (play) {
-                Winner();
+                determineWinner();
             } else {
                 resultMessage = "Game Loaded. Draws remaining: " + drawsRemaining;
             }
