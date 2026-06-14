@@ -1,4 +1,0 @@
-[A-H, A-C, A-D, A-S, Q-D]
-[Q-S, K-C, K-H, K-D, K-S]
-1000
-false

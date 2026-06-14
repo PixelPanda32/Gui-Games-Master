@@ -78,8 +78,8 @@ public class poker {
     //draw with drawing up to 5 times
     int drawsRemaining; 
     boolean play = false;
-    String resultMessage = "Select cards to DISCARD. Draws remaining: 5";
-
+    String resultMessage = "";
+    int DeckCount = 2;
 
     // Window and Card heights
     int boardWidth = 800;
@@ -105,7 +105,7 @@ public class poker {
         
 
             try {   
-                g.drawImage(backgroundImage, 0, 0, 800, 450, this);
+                g.drawImage(backgroundImage, 0, 0, 800, 500, this);
 
                 // draw dealer hand
                  for (int i = 0; i < dealerHand.size(); i++) {
@@ -167,8 +167,8 @@ public class poker {
                 btn.setBorderPainted(false);
                 buttonPanel.add(btn);
         }
-        buttonPanel.setOpaque(true);    
-        
+        buttonPanel.setOpaque(false); 
+        buttonPanel.setBackground(new Color(122, 9, 9,0));   
         gamePanel.add(buttonPanel, BorderLayout.SOUTH);
         gamePanel.addMouseListener(new MouseAdapter(){
             @Override
@@ -275,7 +275,7 @@ public class poker {
             for (String value : values) {
                 deck.add(new Card(value, type));
             }
-        }
+        }System.out.println(deck);
     }
 
     public void shuffleDeck() {
@@ -426,7 +426,7 @@ private void sortHandForTieBreaker(ArrayList<Card> hand) {
         myWriter.write(dealerHand.toString() + "\n");
         myWriter.write(drawsRemaining+ "\n");
         myWriter.write(play + "\n");
-        myWriter.write(deck.toString()+"\n");
+        System.out.println(deck.toString());
     }catch(IOException e){
     System.out.println("Error: could not write");
     }
