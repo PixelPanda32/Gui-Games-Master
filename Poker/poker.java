@@ -421,12 +421,14 @@ private void sortHandForTieBreaker(ArrayList<Card> hand) {
 }
     public void save(){
     File myFile = new File("Poker_save_Data.txt");
+    System.out.println(deck.toString());
     try{ FileWriter myWriter = new FileWriter(myFile);
         myWriter.write(playerHand.toString() +"\n");
         myWriter.write(dealerHand.toString() + "\n");
         myWriter.write(drawsRemaining+ "\n");
         myWriter.write(play + "\n");
-        System.out.println(deck.toString());
+        myWriter.write(deck.toString() + "\n");    
+        myWriter.close();
     }catch(IOException e){
     System.out.println("Error: could not write");
     }
@@ -476,3 +478,4 @@ public void load() {
         new poker();
     }
 }
+ 

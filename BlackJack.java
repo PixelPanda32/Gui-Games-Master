@@ -272,7 +272,7 @@ public class BlackJack {
                 playerAceCount += card.isAce() ? 1 : 0;
                 playerHand.add(card);
                 if (reducePlayerAce() > 21) {
-                    hitButton.setEnabled(false);    
+                    hitButton.setEnabled(false);
                     standButton.setEnabled(false);
                 }
                 gamePanel.repaint();
