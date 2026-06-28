@@ -93,7 +93,7 @@ public class poker {
     JButton drawButton = new JButton("Discard");
     JButton playButton = new JButton("Play");
     JButton restartButton = new JButton("Restart");
-    JButton saveButton = new JButton("Save"); 
+    JButton saveButton = new JButton("Save");   
     JButton loadButton = new JButton("load");
 
     JPanel gamePanel = new JPanel() {
@@ -111,12 +111,12 @@ public class poker {
                  for (int i = 0; i < dealerHand.size(); i++) {
                     Card card = dealerHand.get(i);
                     Image cardImg;
-                    cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
-                    /*if (!play) {
+                    //cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
+                    if (!play) {
                         cardImg = new ImageIcon(getClass().getResource("Cards/green_backing.png")).getImage();
                     } else {
                         cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
-                    }*/
+                    }
                     g.drawImage(cardImg, 100 + (cardWidth + 8) * i, 20, cardWidth, cardHeight, null);
                 }
                 // draw player hand
@@ -130,7 +130,7 @@ public class poker {
                     if (playerSelected[i] && drawsRemaining > 0 && !play) {
                         g.setFont(new Font("Arial", Font.BOLD, 12));
                         g.setColor(Color.RED);
-                        g.drawString("DISCARD", 45 + (cardWidth + 5) * i, 195);
+                        g.drawString("DISCARD", 105 + (cardWidth + 8) * i, 195);
                     }
                 }
                  g.setFont(new Font("Arial", Font.BOLD, 18));
@@ -249,7 +249,7 @@ public class poker {
         dealerHand = new ArrayList<>();
         playerHand = new ArrayList<>();
         playerSelected = new boolean[5]; 
-        drawsRemaining = 1000;
+        drawsRemaining = 5;
         play = false;
         drawButton.setEnabled(true);
         playButton.setEnabled(true);
