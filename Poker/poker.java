@@ -14,12 +14,12 @@ import java.util.HashMap;
 import java.util.Arrays;
 import java.util.Random;
 import javax.swing.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import javax.imageio.ImageIO;
 import javax.smartcardio.Card;
 
@@ -95,17 +95,19 @@ public class poker {
     JButton restartButton = new JButton("Restart");
     JButton saveButton = new JButton("Save");   
     JButton loadButton = new JButton("load");
-
+    
     JPanel gamePanel = new JPanel() {
         @Override
         public void paintComponent(Graphics g) {
-            Image backgroundImage = new ImageIcon(getClass().getResource("./Cards/BG.png")).getImage();
+            Image backgroundImage = new ImageIcon(getClass().getResource("./Cards/bgg.png")).getImage();
             
             super.paintComponent(g);
         
 
             try {   
-                g.drawImage(backgroundImage, 0, 0, 800, 500, this);
+                g.drawImage(backgroundImage, 0,0, 1600, 1000, this);
+                g.setColor(new Color(15, 12, 74,200));//rough color for the background
+                g.fillRect(0, 0, boardWidth, boardHeight);
 
                 // draw dealer hand
                  for (int i = 0; i < dealerHand.size(); i++) {
@@ -116,7 +118,7 @@ public class poker {
                         cardImg = new ImageIcon(getClass().getResource("Cards/green_backing.png")).getImage();
                     } else {
                         cardImg = new ImageIcon(getClass().getResource(card.getCardImagePath())).getImage();
-                    }
+                    } 
                     g.drawImage(cardImg, 100 + (cardWidth + 8) * i, 20, cardWidth, cardHeight, null);
                 }
                 // draw player hand
@@ -158,6 +160,8 @@ public class poker {
 
         gamePanel.setLayout(new BorderLayout());
         frame.add(gamePanel);
+        gamePanel.addKeyListener(new MyKeyListener());
+
           JButton[] buttons = {drawButton, playButton, restartButton, saveButton, loadButton};
             for (JButton btn : buttons) {
                 btn.setFocusable(false);
@@ -239,7 +243,54 @@ public class poker {
         frame.setVisible(true);
         gamePanel.repaint();
     }
- 
+    class MyKeyListener implements KeyListener{
+    int sequence = 0;
+    public void check(){
+    System.out.println("test");
+     if(sequence == 8){
+    int drawsRemaining = 500;
+    }
+    }
+    @Override
+    public void keyPressed(KeyEvent e) {
+    if(e.getKeyCode() == KeyEvent.VK_UP){
+        if(sequence == 0 || sequence == 1){
+            sequence++;
+        }else{
+            sequence = 0;
+        }
+    }
+    if(e.getKeyCode() == KeyEvent.VK_DOWN){
+       if(sequence == 2 || sequence == 3){
+            sequence++;
+        }else{
+            sequence = 0;
+        }  
+    }
+    if(e.getKeyCode() == KeyEvent.VK_LEFT){
+         if(sequence == 4 || sequence == 6){
+            sequence++;
+        }else{
+            sequence = 0;
+        }
+    }
+    if(e.getKeyCode() == KeyEvent.VK_UP){
+            if(sequence == 5 || sequence == 7){
+                        sequence++;
+                    }else{
+                        sequence = 0;
+                    }
+                }
+        
+    }
+   
+         @Override
+    public void keyTyped(KeyEvent e) {
+    }
+         @Override
+    public void keyReleased(KeyEvent e) {
+    }
+    }
     public void startGame() {
         if (deck == null || deck.size() < 30) { // Keep deck full for multiple redraws
             buildDeck();
@@ -266,16 +317,20 @@ public class poker {
 
     
     public void buildDeck() {
+        DeckCount = 3;
         deck = new ArrayList<Card>();
         String[] values = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "J", "K", "Q"};
         String[] types = {"C", "S", "D", "H"};
 
-        
+        for (int q = 0; q < DeckCount; q++){
         for (String type : types) {
             for (String value : values) {
                 deck.add(new Card(value, type));
             }
-        }System.out.println(deck);
+
+        }
+    }
+        System.out.println(deck);
     }
 
     public void shuffleDeck() {
@@ -335,7 +390,8 @@ public void determineWinner() {
 
 private String getHandName(int rank) {
     switch (rank) {
-        case 9: return "Straight Flush";
+        case 10: return "Straight Flush";
+        case 9: return "Five of a kind";
         case 8: return "Four of a Kind";
         case 7: return "Full House";
         case 6: return "Flush";
@@ -369,14 +425,17 @@ private int getHandRank(ArrayList<Card> hand) {
     int pairCount = 0;
     int tripleCount = 0;
     int quadCount = 0;
+    int qintCount = 0;
 
     for (int count : valueFrequencies.values()) {
         if (count == 4) quadCount++;
         else if (count == 3) tripleCount++;
         else if (count == 2) pairCount++;
+        else if (count == 5) qintCount++;
     }
 
-    if (isStraight && isFlush) return 9; //Straight flush
+    if (isStraight && isFlush) return 10; //Straight flush
+    if (qintCount == 1)        return 9;
     if (quadCount == 1)        return 8;  //Four of a kind
     if (tripleCount == 1 && pairCount == 1) return 7; //Flush
     if (isFlush)                return 6;  //FLush
