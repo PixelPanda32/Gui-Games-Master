@@ -1,0 +1,5 @@
+[A-C, A-C, A-C, A-C, A-C]
+[9-S, 4-S, 7-H, 7-C, 5-D]
+5
+false
+[6-D, Q-D, Q-S, J-C, 2-D, 3-S, K-S, K-D, 2-H, 3-D, J-D, 8-D, Q-C, 7-S, 6-H, A-D, Q-H, 9-C, 9-H, A-S, 8-H, 4-C, 8-S, J-H, 9-D, 2-C, 6-C, 7-D, J-S, 5-H, 6-S, 8-C, A-H, 3-C, 5-S, 4-D, 4-H, K-H]

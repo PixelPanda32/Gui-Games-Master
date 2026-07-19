@@ -1,5 +1,5 @@
-[A-C, A-C, A-C, A-C, A-C]
-[9-S, 4-S, 7-H, 7-C, 5-D]
+[J-H, K-C, Q-S, 3-D, 4-D]
+[8-S, 3-C, 2-S, J-C, 8-H]
 5
 false
-[6-D, Q-D, Q-S, J-C, 2-D, 3-S, K-S, K-D, 2-H, 3-D, J-D, 8-D, Q-C, 7-S, 6-H, A-D, Q-H, 9-C, 9-H, A-S, 8-H, 4-C, 8-S, J-H, 9-D, 2-C, 6-C, 7-D, J-S, 5-H, 6-S, 8-C, A-H, 3-C, 5-S, 4-D, 4-H, K-H]
+[Q-C, 6-H, 4-C, 5-H, 7-H, 3-C, J-S, 7-D, 6-C, 9-D, 9-S, 2-H, 5-H, Q-D, 9-C, 4-C, 8-S, K-S, 6-C, K-H, 9-C, J-D, 5-C, 4-H, 2-D, K-C, 8-C, 9-D, 3-D, J-S, 3-S, Q-S, A-D, J-H, A-H, 4-H, 2-C, Q-H, 8-H, 8-D, K-H, 3-H, 5-S, 7-D, 9-H, 6-D, 2-D, 5-D, K-S, 6-S, 5-S, 7-S, J-D, 8-D, 5-S, K-D, 6-C, 4-S, 6-S, A-C, A-C, 9-H, 7-S, 7-C, Q-C, A-S, 6-D, 3-C, 5-H, 3-H, J-C, K-D, 6-D, 7-D, 3-S, A-H, A-S, 7-C, 5-C, K-H, A-D, 7-C, 2-C, 9-H, 4-D, 8-S, Q-D, Q-H, 7-H, 3-S, A-S, 4-S, 6-H, J-H, J-D, 9-D, 7-S, 9-S, K-S, Q-C, 4-H, Q-D, 8-H, 3-D, 5-C, 6-H, K-D, 7-H, 2-H, J-S, 2-S, J-C, A-C, A-H, 9-C, 2-D, 2-H, Q-S, 2-S, A-D, 4-S, 4-D, 5-D, Q-H, K-C, 3-H, 4-C, 2-C, 9-S, 8-D, 5-D, 8-C, 6-S, 8-C]

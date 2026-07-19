@@ -80,6 +80,8 @@ public class poker {
     boolean play = false;
     String resultMessage = "";
     int DeckCount = 2;
+    int sequence;
+
 
     // Window and Card heights
     int boardWidth = 800;
@@ -160,7 +162,7 @@ public class poker {
 
         gamePanel.setLayout(new BorderLayout());
         frame.add(gamePanel);
-        gamePanel.addKeyListener(new MyKeyListener());
+        frame.addKeyListener(new MyKeyListener());
 
           JButton[] buttons = {drawButton, playButton, restartButton, saveButton, loadButton};
             for (JButton btn : buttons) {
@@ -230,7 +232,7 @@ public class poker {
         });
         loadButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                load();
+                load("poker_save_data.txt");
                 System.out.println("loaded");
             }
         });
@@ -243,43 +245,56 @@ public class poker {
         frame.setVisible(true);
         gamePanel.repaint();
     }
-    class MyKeyListener implements KeyListener{
-    int sequence = 0;
     public void check(){
-    System.out.println("test");
-     if(sequence == 8){
-    int drawsRemaining = 500;
+    System.out.println(sequence);
+        if(sequence >= 8){
+            System.out.println("yes");
+            load("Poker_Cheat.txt");
+            drawsRemaining = 500;
+        }
+
     }
-    }
+    class MyKeyListener implements KeyListener{
+
     @Override
     public void keyPressed(KeyEvent e) {
     if(e.getKeyCode() == KeyEvent.VK_UP){
+        System.out.println("UP");
         if(sequence == 0 || sequence == 1){
             sequence++;
         }else{
             sequence = 0;
         }
+        check();
     }
     if(e.getKeyCode() == KeyEvent.VK_DOWN){
-       if(sequence == 2 || sequence == 3){
+        System.out.println("DOWN");
+        if(sequence == 2 || sequence == 3){
             sequence++;
         }else{
             sequence = 0;
         }  
+        check();
     }
     if(e.getKeyCode() == KeyEvent.VK_LEFT){
+        System.out.println("LEFT");
          if(sequence == 4 || sequence == 6){
             sequence++;
         }else{
             sequence = 0;
         }
+        check();
+
     }
-    if(e.getKeyCode() == KeyEvent.VK_UP){
-            if(sequence == 5 || sequence == 7){
-                        sequence++;
-                    }else{
-                        sequence = 0;
-                    }
+    if(e.getKeyCode() == KeyEvent.VK_RIGHT){
+        System.out.println("RIGHT");
+        if(sequence == 5 || sequence == 7){
+            sequence++;
+        }else{
+            sequence = 0;
+        }
+        check();
+
                 }
         
     }
@@ -495,12 +510,11 @@ private void sortHandForTieBreaker(ArrayList<Card> hand) {
 
 
 }
-public void load() {
+public void load(String file) {
      try {
-            java.util.List<String> lines = Files.readAllLines(Paths.get("poker_save_data.txt"));
+            java.util.List<String> lines = Files.readAllLines(Paths.get(file));
             this.playerHand = parseHand(lines.get(0));
-            this.dealerHand = parseHand(lines.get(1));
-            this.drawsRemaining = Integer.parseInt(lines.get(2));
+x 21            this.drawsRemaining = Integer.parseInt(lines.get(2));
             this.play = Boolean.parseBoolean(lines.get(3));
             this.deck = parseHand(lines.get(4));
 
@@ -510,6 +524,7 @@ public void load() {
             if (play) {
                 determineWinner();
             } else {
+                System.out.println(drawsRemaining);
                 resultMessage = "Game Loaded. Draws remaining: " + drawsRemaining;
             }
             gamePanel.repaint();
