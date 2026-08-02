@@ -111,7 +111,7 @@ public class poker {
 
                     // Highlight winning dealer cards
                     if (play && winningDealerCards.contains(card)) {
-                        g2.setColor(new Color(5, 181, 49));
+                        g2.setColor(Color.YELLOW);
                         g2.drawRoundRect(cardX - 2, cardY - 2, cardWidth + 4, cardHeight + 4, 10, 10);
                     }
                 }
@@ -127,8 +127,8 @@ public class poker {
                     
                     if (playerSelected[i] && drawsRemaining > 0 && !play) {
                         g.setFont(new Font("Arial", Font.BOLD, 12));
-                        g.setColor(Color.RED);
-                        g.drawString("DISCARD", 105 + (cardWidth + 8) * i, 195);
+                        g2.setColor(Color.RED);
+                        g2.drawRoundRect(cardX - 2, yOffset - 2, cardWidth + 4, cardHeight + 4, 10, 10);
                     }
 
                     // Highlight winning player cards
